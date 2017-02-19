@@ -90,7 +90,11 @@
                         </constraints>
                     </view>
                     <navigationItem key="navigationItem" id="Eal-la-LC1">
-                        <barButtonItem key="leftBarButtonItem" systemItem="action" id="wS4-bH-kyg"/>
+                        <barButtonItem key="leftBarButtonItem" systemItem="action" id="wS4-bH-kyg">
+                            <connections>
+                                <action selector="activityBarButtonItemAction:" destination="a5P-om-fqx" id="Jfq-JR-xdX"/>
+                            </connections>
+                        </barButtonItem>
                         <barButtonItem key="rightBarButtonItem" systemItem="cancel" id="Z1p-4W-DRH"/>
                     </navigationItem>
                     <connections>

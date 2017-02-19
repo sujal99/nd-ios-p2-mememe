@@ -120,7 +120,22 @@ class MemeEditorViewController: UIViewController {
   }
   
   @IBAction func activityBarButtonItemAction(_ sender: AnyObject?) {
-    
+    guard let memedImage = generateMemeImage() else {
+      return
+    }
+    let activityViewController = UIActivityViewController(activityItems: [memedImage], applicationActivities: nil)
+    navigationController?.present(activityViewController, animated: true, completion: nil)
+    activityViewController.completionWithItemsHandler = {
+      _, isCompleted, returnedItems, activityError in
+      if let activityError = activityError {
+        print (activityError)
+        return
+      }
+      if !isCompleted {
+        return
+      }
+      
+    }
   }
   
   
@@ -181,7 +196,6 @@ class MemeEditorViewController: UIViewController {
     }
     return im
   }
-  
 }
 
 
