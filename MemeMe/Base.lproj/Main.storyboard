@@ -94,15 +94,18 @@
                         <barButtonItem key="rightBarButtonItem" systemItem="cancel" id="Z1p-4W-DRH"/>
                     </navigationItem>
                     <connections>
+                        <outlet property="actionBarButtonItem" destination="wS4-bH-kyg" id="61N-Ve-QWz"/>
                         <outlet property="bottomTextField" destination="0r0-kT-xfc" id="IBj-jr-cM9"/>
+                        <outlet property="bottomTextFieldBottomLayoutConstraint" destination="7gl-uw-DmQ" id="jok-56-jTe"/>
                         <outlet property="cameraBarButtonItem" destination="FOE-yb-Uvo" id="5LZ-J4-jsr"/>
                         <outlet property="memeImageView" destination="RPG-yL-cqI" id="iu2-o2-ywS"/>
                         <outlet property="topTextField" destination="Tbn-pS-RIz" id="mTk-LB-Q0q"/>
+                        <outlet property="topTextViewTopLayOutConstraint" destination="tkY-NX-8WG" id="WTH-GE-XaL"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="XYj-7A-FX0" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="-3812" y="313"/>
+            <point key="canvasLocation" x="-3539" y="289"/>
         </scene>
         <!--Navigation Controller-->
         <scene sceneID="pAd-By-KI7">
