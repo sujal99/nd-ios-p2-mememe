@@ -7,27 +7,9 @@
 //
 
 import UIKit
-import RxSwift
 import Photos
-
 import AVFoundation
 
-
-
-fileprivate let photoPermissionObsevable  = Observable<PHAuthorizationStatus>.create { (authStatusObserver) -> Disposable in
-  let authStatus = PHPhotoLibrary.authorizationStatus()
-  switch authStatus {
-  case .authorized, .denied, .restricted:
-    authStatusObserver.onNext(authStatus)
-    authStatusObserver.onCompleted()
-  case .notDetermined:
-    PHPhotoLibrary.requestAuthorization { authStatus in
-      authStatusObserver.onNext(authStatus)
-      authStatusObserver.onCompleted()
-    }
-  }
-  return Disposables.create()
-}
 
 class MemeEditorViewController: UIViewController {
   @IBOutlet weak var topTextField: UITextField!
@@ -42,10 +24,6 @@ class MemeEditorViewController: UIViewController {
   
   var isTopTextFieldEdited: Bool = false
   var isBottomTextFieldEdited: Bool = false
-  
-  let photoPermissionStatus = Variable(PHAuthorizationStatus.notDetermined)
-  
-  let disposeBag = DisposeBag()
   
   override func viewDidLoad() {
     super.viewDidLoad()
@@ -76,19 +54,12 @@ class MemeEditorViewController: UIViewController {
       cameraBarButtonItem.isEnabled = false
     }
     
-    photoPermissionStatus.asObservable().subscribe(onNext: { [weak self] authStatus in
-      switch authStatus {
-      case .denied:
-        self?.showPhotoLibraryAccessErrorAlert(stataus: authStatus)
-      case .restricted:
-        self?.showPhotoLibraryAccessErrorAlert(stataus: authStatus)
-      default: break
-      }
-    }).addDisposableTo(disposeBag)
-    
-    photoPermissionObsevable.subscribe(onNext: { [weak self] authStatus in
-      self?.photoPermissionStatus.value = authStatus
-    }).addDisposableTo(disposeBag)
+    let photoLibraryPermissionStatus = PHPhotoLibrary.authorizationStatus()
+    if (photoLibraryPermissionStatus == .notDetermined) {
+      PHPhotoLibrary.requestAuthorization({ _ in
+        self.checkPhotoLibraryAccessPermission(nil)
+      })
+    }
   }
   
   override func viewWillAppear(_ animated: Bool) {
@@ -113,9 +84,11 @@ class MemeEditorViewController: UIViewController {
   }
   
   @IBAction func pickPhoto(_ sender: AnyObject?) {
-    let status = startCameraController(from: navigationController!, sourceType: .photoLibrary, delegate: self)
-    if !status {
-      
+    checkPhotoLibraryAccessPermission { 
+      let status = self.startCameraController(from: self.navigationController!, sourceType: .photoLibrary, delegate: self)
+      if !status {
+        print("Source type not available")
+      }
     }
   }
   
@@ -133,6 +106,18 @@ class MemeEditorViewController: UIViewController {
       }
       if !isCompleted {
         return
+      }
+      if let moc = (UIApplication.shared.delegate as? AppDelegate)?.moc
+      , let meme = Meme.meme(moc) {
+        meme.bottomText = self.bottomTextField.text
+        meme.topText = self.topTextField.text
+        meme.image = self.memeImageView.image
+        meme.memedImage = memedImage
+        do {
+          try moc.save()
+        } catch {
+          print(error)
+        }
       }
       
     }
@@ -200,12 +185,22 @@ class MemeEditorViewController: UIViewController {
 
 
 extension MemeEditorViewController: UIImagePickerControllerDelegate, UINavigationControllerDelegate {
-  func showPhotoLibraryAccessErrorAlert(stataus: PHAuthorizationStatus) {
-    
-  }
-  
-  func showCameraAccessErrorAlert(stataus: PHAuthorizationStatus) {
-    
+  func checkPhotoLibraryAccessPermission(_ completion:(()-> Void)?) {
+    let photoLibraryPermissionStatus = PHPhotoLibrary.authorizationStatus()
+    switch photoLibraryPermissionStatus {
+    case .denied:
+      if let navigationController = navigationController {
+        Alerts.showAlert(Alerts.ErrorTitle, message: Alerts.PhotoPermissionAlertDenied, presentingViewController: navigationController)
+      }
+    case .restricted:
+      if let navigationController = navigationController {
+        Alerts.showAlert(Alerts.ErrorTitle, message: Alerts.PhotoPermissionAlertRestricted, presentingViewController: navigationController)
+      }
+    case .authorized:
+      completion?()
+    default:
+      break
+    }
   }
   
   func startCameraController(from: UIViewController, sourceType:UIImagePickerControllerSourceType, delegate: UIImagePickerControllerDelegate & UINavigationControllerDelegate) -> Bool {
@@ -215,13 +210,12 @@ extension MemeEditorViewController: UIImagePickerControllerDelegate, UINavigatio
     let imagePickerController = UIImagePickerController()
     imagePickerController.sourceType = sourceType
     imagePickerController.delegate = delegate
-    imagePickerController.allowsEditing = true
     from.show(imagePickerController, sender: self)
     return true
   }
   
   func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [String : Any]) {
-    memeImageView.image = info[UIImagePickerControllerEditedImage] as? UIImage
+    memeImageView.image = info[UIImagePickerControllerOriginalImage] as? UIImage
     actionBarButtonItem.isEnabled = true
     adjustTextField()
     picker.dismiss(animated: true, completion:nil)

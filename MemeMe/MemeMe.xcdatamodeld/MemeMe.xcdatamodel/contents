@@ -3,9 +3,10 @@
     <entity name="Meme" representedClassName=".Meme" syncable="YES">
         <attribute name="bottomText" optional="YES" attributeType="String" syncable="YES"/>
         <attribute name="image" optional="YES" attributeType="Transformable" valueTransformerName="ImagetoDataTransformer" customClassName="." syncable="YES"/>
+        <attribute name="memedImage" optional="YES" attributeType="Transformable" valueTransformerName="ImagetoDataTransformer" customClassName="." syncable="YES"/>
         <attribute name="topText" optional="YES" attributeType="String" syncable="YES"/>
     </entity>
     <elements>
-        <element name="Meme" positionX="-63" positionY="-18" width="128" height="90"/>
+        <element name="Meme" positionX="-63" positionY="-18" width="128" height="105"/>
     </elements>
 </model>

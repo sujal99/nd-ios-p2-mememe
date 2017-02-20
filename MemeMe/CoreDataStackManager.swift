@@ -65,21 +65,11 @@ class CoreDataStackManager {
     
     // Creates a new Core Data stack and returns a managed object context associated with a private queue.
     func createPrivateQueueContext() throws -> NSManagedObjectContext {
-    
-        // Stack uses the same store and model, but a new persistent store coordinator and context.
-        let coordinator = NSPersistentStoreCoordinator(managedObjectModel: CoreDataStackManager.sharedManager.managedObjectModel)
-        
-        /*
-        Attempting to add a persistent store may yield an error--pass it out of
-        the function for the caller to deal with.
-        */
-        try coordinator.addPersistentStore(ofType: NSSQLiteStoreType, configurationName: nil, at: CoreDataStackManager.sharedManager.storeURL, options: nil)
-        
         let context = NSManagedObjectContext(concurrencyType: .privateQueueConcurrencyType)
     
         context.performAndWait() {
         
-            context.persistentStoreCoordinator = coordinator
+            context.persistentStoreCoordinator = CoreDataStackManager.sharedManager.persistentStoreCoordinator
         
             // Avoid using default merge policy in multi-threading environment:
             // when we delete (and save) a record in one context,

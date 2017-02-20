@@ -24,6 +24,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     } catch {
       print (error)
     }
+    /*
     let fetchReq = NSFetchRequest<Meme>(entityName: "Meme")
     fetchReq.fetchLimit = 1
     do {
@@ -37,6 +38,13 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     } catch {
       print(error)
     }
+ */
+    
+    let memeEditorViewController = storyBoard.instantiateViewController(withIdentifier: "MemeEditorViewControllerSBID")
+    self.window = UIWindow(frame: UIScreen.main.bounds)
+    self.window?.rootViewController = memeEditorViewController
+    self.window?.makeKeyAndVisible()
+    
     return true
   }
 
