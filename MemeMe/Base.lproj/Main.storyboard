@@ -45,9 +45,13 @@
                                 </constraints>
                                 <items>
                                     <barButtonItem style="plain" systemItem="flexibleSpace" id="2nZ-Bm-QQI"/>
-                                    <barButtonItem systemItem="camera" id="FOE-yb-Uvo"/>
+                                    <barButtonItem systemItem="camera" id="FOE-yb-Uvo">
+                                        <connections>
+                                            <action selector="pickPhoto:" destination="a5P-om-fqx" id="tjk-9R-2LE"/>
+                                        </connections>
+                                    </barButtonItem>
                                     <barButtonItem width="42" style="plain" systemItem="fixedSpace" id="f6K-5b-x64"/>
-                                    <barButtonItem title="Album" id="Aza-wZ-3Uf">
+                                    <barButtonItem tag="1" title="Album" id="Aza-wZ-3Uf">
                                         <connections>
                                             <action selector="pickPhoto:" destination="a5P-om-fqx" id="WT1-bA-F7I"/>
                                         </connections>

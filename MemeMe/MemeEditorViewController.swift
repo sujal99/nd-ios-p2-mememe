@@ -22,28 +22,28 @@ class MemeEditorViewController: UIViewController {
   @IBOutlet weak var topTextViewTopLayOutConstraint: NSLayoutConstraint!
   @IBOutlet weak var bottomTextFieldBottomLayoutConstraint: NSLayoutConstraint!
   
-  var isTopTextFieldEdited: Bool = false
-  var isBottomTextFieldEdited: Bool = false
-  
-  override func viewDidLoad() {
-    super.viewDidLoad()
+  let memeTextAttributes:[String:Any] = {
     let memeTextParagraphStyle:NSMutableParagraphStyle = NSMutableParagraphStyle()
     memeTextParagraphStyle.alignment = .center
-    
-    let memeTextAttributes:[String:Any] = [
+    return [
       NSStrokeColorAttributeName: UIColor.black,
       NSStrokeWidthAttributeName: -3.0,
       NSForegroundColorAttributeName: UIColor.white,
       NSFontAttributeName: UIFont(name: "HelveticaNeue-CondensedBlack", size: 40)!,
       NSParagraphStyleAttributeName: memeTextParagraphStyle
     ]
+  }()
+  
+  var isTopTextFieldEdited: Bool = false
+  var isBottomTextFieldEdited: Bool = false
+
+  
+  override func viewDidLoad() {
+    super.viewDidLoad()
     
-    topTextField.defaultTextAttributes = memeTextAttributes
-    bottomTextField.defaultTextAttributes = memeTextAttributes
-    topTextField.text = "TOP"
-    bottomTextField.text = "BOTTOM"
-    topTextField.delegate = self
-    bottomTextField.delegate = self
+    prepareTextFields(topTextField, defaultText: "TOP")
+    prepareTextFields(bottomTextField, defaultText: "BOTTOM")
+    
     actionBarButtonItem.isEnabled = false
   }
   
@@ -83,11 +83,18 @@ class MemeEditorViewController: UIViewController {
     }
   }
   
-  @IBAction func pickPhoto(_ sender: AnyObject?) {
-    checkPhotoLibraryAccessPermission { 
-      let status = self.startCameraController(from: self.navigationController!, sourceType: .photoLibrary, delegate: self)
+  @IBAction func pickPhoto(_ sender: UIBarButtonItem?) {
+    if (sender?.tag == 0) {
+      let status = self.startCameraController(from: self.navigationController!, sourceType: .camera, delegate: self)
       if !status {
         print("Source type not available")
+      }
+    } else {
+      checkPhotoLibraryAccessPermission {
+        let status = self.startCameraController(from: self.navigationController!, sourceType: .photoLibrary, delegate: self)
+        if !status {
+          print("Source type not available")
+        }
       }
     }
   }
@@ -181,8 +188,13 @@ class MemeEditorViewController: UIViewController {
     }
     return im
   }
+  
+  func prepareTextFields (_ textField:UITextField, defaultText: String) {
+    textField.defaultTextAttributes = memeTextAttributes
+    textField.text = defaultText
+    textField.delegate = self
+  }
 }
-
 
 extension MemeEditorViewController: UIImagePickerControllerDelegate, UINavigationControllerDelegate {
   func checkPhotoLibraryAccessPermission(_ completion:(()-> Void)?) {
@@ -253,7 +265,7 @@ extension MemeEditorViewController {
   
   func keyboardWillShow(_ notification:Notification) {
     if (bottomTextField.isFirstResponder) {
-      view.frame.origin.y -= getKeyboardHeight(notification)
+      view.frame.origin.y = -getKeyboardHeight(notification)
     }
   }
   
