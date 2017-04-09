@@ -24,26 +24,25 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     } catch {
       print (error)
     }
-    /*
+    
+    let mainInterface = storyBoard.instantiateViewController(withIdentifier: "MainInterface")
+    self.window = UIWindow(frame: UIScreen.main.bounds)
+    self.window?.rootViewController = mainInterface
+    self.window?.makeKeyAndVisible()
+
     let fetchReq = NSFetchRequest<Meme>(entityName: "Meme")
     fetchReq.fetchLimit = 1
     do {
       let memes = try self.moc?.fetch(fetchReq)
       if memes?.count == 0 {
-        let memeEditorViewController = storyBoard.instantiateViewController(withIdentifier: "MemeEditorViewControllerSBID")
-        self.window = UIWindow(frame: UIScreen.main.bounds)
-        self.window?.rootViewController = memeEditorViewController
-        self.window?.makeKeyAndVisible()
+        let memeEditorNavViewController = storyBoard.instantiateViewController(withIdentifier: "MemeEditorViewControllerSBID") as! UINavigationController
+        let memeEditorViewController = memeEditorNavViewController.topViewController as! MemeEditorViewController
+        memeEditorViewController.enableCancelButton = false
+        self.window?.rootViewController?.present(memeEditorNavViewController, animated: true, completion: nil)
       }
     } catch {
       print(error)
     }
- */
-    
-    let memeEditorViewController = storyBoard.instantiateViewController(withIdentifier: "MemeEditorViewControllerSBID")
-    self.window = UIWindow(frame: UIScreen.main.bounds)
-    self.window?.rootViewController = memeEditorViewController
-    self.window?.makeKeyAndVisible()
     
     return true
   }

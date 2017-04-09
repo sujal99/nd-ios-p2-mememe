@@ -6,14 +6,16 @@
 //
 //
 
-import Foundation
+import UIKit
 import CoreData
 
 
 extension Meme {
   
-  @nonobjc public class func fetchRequest() -> NSFetchRequest<Meme> {
-    return NSFetchRequest<Meme>(entityName: "Meme");
+  @nonobjc public class func sortedFetchRequest() -> NSFetchRequest<Meme> {
+    let req = NSFetchRequest<Meme>(entityName: "Meme")
+    req.sortDescriptors = [NSSortDescriptor(key: "timeStamp", ascending: false)]
+    return req
   }
   
   @nonobjc public class func meme(_ managedObjectContext: NSManagedObjectContext) -> Meme? {
@@ -23,10 +25,10 @@ extension Meme {
     return NSManagedObject(entity: entityDesc, insertInto: managedObjectContext) as? Meme
   }
   
-  
+  @NSManaged public var timeStamp: Date?
   @NSManaged public var topText: String?
   @NSManaged public var bottomText: String?
-  @NSManaged public var image: NSObject?
-  @NSManaged public var memedImage: NSObject?
-  
+  @NSManaged public var image: UIImage?
+  @NSManaged public var memedImage: UIImage?
+
 }

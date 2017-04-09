@@ -12,6 +12,11 @@ import AVFoundation
 
 
 class MemeEditorViewController: UIViewController {
+  
+  var topText: String?
+  var bottomText: String?
+  var memeOrigImage: UIImage?
+  
   @IBOutlet weak var topTextField: UITextField!
   @IBOutlet weak var bottomTextField: UITextField!
   @IBOutlet weak var memeImageView: UIImageView!
@@ -21,6 +26,11 @@ class MemeEditorViewController: UIViewController {
   @IBOutlet weak var actionBarButtonItem: UIBarButtonItem!
   @IBOutlet weak var topTextViewTopLayOutConstraint: NSLayoutConstraint!
   @IBOutlet weak var bottomTextFieldBottomLayoutConstraint: NSLayoutConstraint!
+  @IBOutlet weak var cancelBarButtonItem: UIBarButtonItem!
+
+  var enableCancelButton = true
+		
+  
   
   let memeTextAttributes:[String:Any] = {
     let memeTextParagraphStyle:NSMutableParagraphStyle = NSMutableParagraphStyle()
@@ -44,7 +54,20 @@ class MemeEditorViewController: UIViewController {
     prepareTextFields(topTextField, defaultText: "TOP")
     prepareTextFields(bottomTextField, defaultText: "BOTTOM")
     
+    if let topText = topText {
+      topTextField.text = topText
+    }
+    
+    if let bottomText = bottomText {
+      bottomTextField.text = bottomText
+    }
+    
+    if let memeOrigImage = memeOrigImage {
+      memeImageView.image = memeOrigImage
+    }
+    
     actionBarButtonItem.isEnabled = false
+    cancelBarButtonItem.isEnabled = enableCancelButton
   }
   
   override func viewDidAppear(_ animated: Bool) {
@@ -120,14 +143,20 @@ class MemeEditorViewController: UIViewController {
         meme.topText = self.topTextField.text
         meme.image = self.memeImageView.image
         meme.memedImage = memedImage
+        meme.timeStamp = Date()
         do {
           try moc.save()
+          self.dismiss(animated: true, completion: nil)
         } catch {
           print(error)
         }
       }
       
     }
+  }
+  
+  @IBAction func cancelBarButtonItemAction(_ sender: AnyObject?) {
+    dismiss(animated: true, completion: nil)
   }
   
   
@@ -281,10 +310,6 @@ extension MemeEditorViewController {
     return keyboardSize.cgRectValue.height
   }
   
-}
-
-extension MemeEditorViewController {
-
 }
 
 
