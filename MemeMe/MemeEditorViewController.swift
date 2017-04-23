@@ -29,7 +29,7 @@ class MemeEditorViewController: UIViewController {
   @IBOutlet weak var cancelBarButtonItem: UIBarButtonItem!
 
   var enableCancelButton = true
-		
+  var enableShareButton = false
   
   
   let memeTextAttributes:[String:Any] = {
@@ -51,22 +51,14 @@ class MemeEditorViewController: UIViewController {
   override func viewDidLoad() {
     super.viewDidLoad()
     
-    prepareTextFields(topTextField, defaultText: "TOP")
-    prepareTextFields(bottomTextField, defaultText: "BOTTOM")
-    
-    if let topText = topText {
-      topTextField.text = topText
-    }
-    
-    if let bottomText = bottomText {
-      bottomTextField.text = bottomText
-    }
+    prepareTextFields(topTextField, defaultText: (topText != nil) ? topText!: "TOP")
+    prepareTextFields(bottomTextField, defaultText: (bottomText != nil) ? bottomText!: "BOTTOM")
     
     if let memeOrigImage = memeOrigImage {
       memeImageView.image = memeOrigImage
     }
     
-    actionBarButtonItem.isEnabled = false
+    actionBarButtonItem.isEnabled = enableShareButton
     cancelBarButtonItem.isEnabled = enableCancelButton
   }
   
@@ -108,13 +100,13 @@ class MemeEditorViewController: UIViewController {
   
   @IBAction func pickPhoto(_ sender: UIBarButtonItem?) {
     if (sender?.tag == 0) {
-      let status = self.startCameraController(from: self.navigationController!, sourceType: .camera, delegate: self)
+      let status = self.startCameraController(from: self, sourceType: .camera, delegate: self)
       if !status {
         print("Source type not available")
       }
     } else {
       checkPhotoLibraryAccessPermission {
-        let status = self.startCameraController(from: self.navigationController!, sourceType: .photoLibrary, delegate: self)
+        let status = self.startCameraController(from: self, sourceType: .photoLibrary, delegate: self)
         if !status {
           print("Source type not available")
         }
@@ -280,7 +272,6 @@ extension MemeEditorViewController: UITextFieldDelegate {
   }
 }
 
-
 extension MemeEditorViewController {
   func subscribeToKeyboardNotifications() {
     NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillShow(_:)), name: .UIKeyboardWillShow, object: nil)
@@ -293,23 +284,22 @@ extension MemeEditorViewController {
   }
   
   func keyboardWillShow(_ notification:Notification) {
-    if (bottomTextField.isFirstResponder) {
-      view.frame.origin.y = -getKeyboardHeight(notification)
-    }
+    view.frame.origin.y = getKeyboardHeight(notification) * (-1)
   }
   
   func keyboardWillHide(_ notification:Notification) {
-    if (bottomTextField.isFirstResponder) {
-      self.view.frame.origin.y = 0
-    }
+    view.frame.origin.y = 0
   }
   
   func getKeyboardHeight(_ notification:Notification) -> CGFloat {
     let userInfo = notification.userInfo
     let keyboardSize = userInfo![UIKeyboardFrameEndUserInfoKey] as! NSValue
-    return keyboardSize.cgRectValue.height
+    if bottomTextField.isFirstResponder {
+      return keyboardSize.cgRectValue.height
+    } else {
+      return 0
+    }
   }
-  
 }
 
 

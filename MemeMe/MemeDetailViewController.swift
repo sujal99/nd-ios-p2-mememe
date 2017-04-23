@@ -25,6 +25,7 @@ class MemeDetailViewController: UIViewController {
     memeEditorViewController.topText = meme.topText
     memeEditorViewController.bottomText = meme.bottomText
     memeEditorViewController.memeOrigImage = meme.image
+    memeEditorViewController.enableShareButton = true
     self.navigationController?.present(memeEditorNavViewController, animated: true, completion: nil)
     self.navigationController?.popViewController(animated: false)
   }
