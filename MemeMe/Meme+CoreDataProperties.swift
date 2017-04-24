@@ -22,13 +22,13 @@ extension Meme {
     guard let entityDesc = NSEntityDescription.entity(forEntityName: "Meme", in: managedObjectContext) else {
       return nil
     }
-    return NSManagedObject(entity: entityDesc, insertInto: managedObjectContext) as? Meme
+    let meme = Meme(entity: entityDesc, insertInto: managedObjectContext)
+    meme.imageHandler = ImageHandler()
+    return meme
   }
   
   @NSManaged public var timeStamp: Date?
   @NSManaged public var topText: String?
   @NSManaged public var bottomText: String?
-  @NSManaged public var image: UIImage?
-  @NSManaged public var memedImage: UIImage?
-
+  @NSManaged public var imageName: String?
 }

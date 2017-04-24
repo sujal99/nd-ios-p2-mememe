@@ -29,9 +29,9 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     self.window = UIWindow(frame: UIScreen.main.bounds)
     self.window?.rootViewController = mainInterface
     self.window?.makeKeyAndVisible()
-
-    let fetchReq = NSFetchRequest<Meme>(entityName: "Meme")
+    let fetchReq = NSFetchRequest<NSFetchRequestResult>(entityName: "Meme")
     fetchReq.fetchLimit = 1
+    fetchReq.resultType = .managedObjectIDResultType
     do {
       let memes = try self.moc?.fetch(fetchReq)
       if memes?.count == 0 {

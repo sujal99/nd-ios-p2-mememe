@@ -9,6 +9,7 @@
 import UIKit
 import Photos
 import AVFoundation
+import CoreData
 
 
 class MemeEditorViewController: UIViewController {
@@ -129,21 +130,28 @@ class MemeEditorViewController: UIViewController {
       if !isCompleted {
         return
       }
-      if let moc = (UIApplication.shared.delegate as? AppDelegate)?.moc
-      , let meme = Meme.meme(moc) {
-        meme.bottomText = self.bottomTextField.text
-        meme.topText = self.topTextField.text
-        meme.image = self.memeImageView.image
-        meme.memedImage = memedImage
-        meme.timeStamp = Date()
-        do {
-          try moc.save()
-          self.dismiss(animated: true, completion: nil)
-        } catch {
-          print(error)
+      
+      DispatchQueue.global(qos: .userInitiated).async {
+        if let originalImage = self.memeImageView.image,
+        let memedImageThumbnail = UIImage.generatePhotoThumbnail(image: memedImage),
+        let moc = (UIApplication.shared.delegate as? AppDelegate)?.moc,
+        let meme = Meme.meme(moc) {
+          meme.bottomText = self.bottomTextField.text
+          meme.topText = self.topTextField.text
+          meme.memedImageThumbnail = memedImageThumbnail
+          meme.timeStamp = Date()
+          meme.saveImages(originalImage: originalImage, memedImage: memedImage,
+                          memedImageThumbnail: memedImageThumbnail, timeStamp: meme.timeStamp!)
+          moc.perform {
+            do {
+              try moc.save()
+            } catch {
+              print (error)
+            }
+          }
         }
       }
-      
+      self.dismiss(animated: true, completion: nil)
     }
   }
   

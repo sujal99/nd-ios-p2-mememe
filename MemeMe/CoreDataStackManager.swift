@@ -65,7 +65,7 @@ class CoreDataStackManager {
     
     // Creates a new Core Data stack and returns a managed object context associated with a private queue.
     func createPrivateQueueContext() throws -> NSManagedObjectContext {
-        let context = NSManagedObjectContext(concurrencyType: .privateQueueConcurrencyType)
+        let context = NSManagedObjectContext(concurrencyType: .mainQueueConcurrencyType)
     
         context.performAndWait() {
         

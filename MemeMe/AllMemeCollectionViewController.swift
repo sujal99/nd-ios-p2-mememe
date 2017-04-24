@@ -25,11 +25,17 @@ class AllMemeCollectionViewController: UICollectionViewController {
     let frc = NSFetchedResultsController(fetchRequest: request, managedObjectContext: moc, sectionNameKeyPath: nil, cacheName: nil)
     dataSource = CollectionViewDataSource(collectionView: collectionView!, cellIdentifier: "AllMemeCollectionViewCell", fetchedResultsController: frc, delegate: self)
   }
+  
+  override func viewWillAppear(_ animated: Bool) {
+    navigationController?.tabBarController?.tabBar.isHidden = false
+    super.viewWillAppear(animated)
+  }
+  
 }
 
 extension AllMemeCollectionViewController: CollectionViewDataSourceDelegate {
   func configure(_ cell: AllMemeCollectionViewCell, for object: Meme) {
-    cell.memeImageView?.image = object.memedImage
+    cell.memeImageView?.image = object.memedImageThumbnail
   }
   
   func showDetail(for object: Meme) {
