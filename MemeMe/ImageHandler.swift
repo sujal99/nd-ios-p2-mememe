@@ -26,9 +26,9 @@ struct ImageHandler {
     let originalFileName = URL(fileURLWithPath:ImageHandler.imageDirectory.appendingFormat("/%@.png", fileName))
     let memedFileName = URL(fileURLWithPath:ImageHandler.imageDirectory.appendingFormat("/%@-memed.png", fileName))
     let memedThumbnailFileName = URL(fileURLWithPath:ImageHandler.imageDirectory.appendingFormat("/%@-thumb.png", fileName))
-    try UIImagePNGRepresentation(originalImage)?.write(to: originalFileName, options: .atomic)
-    try UIImagePNGRepresentation(memedImage)?.write(to: memedFileName, options: .atomic)
-    try UIImagePNGRepresentation(memedImageThumbnail)?.write(to: memedThumbnailFileName, options: .atomic)
+    try UIImageJPEGRepresentation(originalImage, 0.2)?.write(to: originalFileName, options: .atomic)
+    try UIImageJPEGRepresentation(memedImage, 0.2)?.write(to: memedFileName, options: .atomic)
+    try UIImageJPEGRepresentation(memedImageThumbnail, 0.2)?.write(to: memedThumbnailFileName, options: .atomic)
     return fileName
   }
   
