@@ -28,6 +28,9 @@ class MemeEditorViewController: UIViewController {
   @IBOutlet weak var topTextViewTopLayOutConstraint: NSLayoutConstraint!
   @IBOutlet weak var bottomTextFieldBottomLayoutConstraint: NSLayoutConstraint!
   @IBOutlet weak var cancelBarButtonItem: UIBarButtonItem!
+  
+  @IBOutlet weak var activityIndicatorView: UIActivityIndicatorView!
+  
 
   var enableCancelButton = true
   var enableShareButton = false
@@ -116,7 +119,17 @@ class MemeEditorViewController: UIViewController {
   }
   
   @IBAction func activityBarButtonItemAction(_ sender: AnyObject?) {
+    func showActivityIndicatorView(_ show: Bool) {
+      if show {
+        activityIndicatorView.startAnimating()
+      } else {
+        activityIndicatorView.stopAnimating()
+      }
+    }
+    
+    showActivityIndicatorView(true)
     guard let memedImage = generateMemeImage() else {
+      showActivityIndicatorView(false)
       return
     }
     let activityViewController = UIActivityViewController(activityItems: [memedImage], applicationActivities: nil)
@@ -125,15 +138,18 @@ class MemeEditorViewController: UIViewController {
       _, isCompleted, returnedItems, activityError in
       if let activityError = activityError {
         print (activityError)
+        showActivityIndicatorView(false)
         return
       }
       if !isCompleted {
+        showActivityIndicatorView(false)
         return
       }
       
       DispatchQueue.global(qos: .userInitiated).async {
+        UIApplication.shared.beginIgnoringInteractionEvents()
         if let originalImage = self.memeImageView.image,
-        let memedImageThumbnail = UIImage.generatePhotoThumbnail(image: memedImage),
+          let memedImageThumbnail = UIImage.scalePhoto(image: memedImage, width: 80),
         let moc = (UIApplication.shared.delegate as? AppDelegate)?.moc,
         let meme = Meme.meme(moc) {
           meme.bottomText = self.bottomTextField.text
@@ -142,16 +158,20 @@ class MemeEditorViewController: UIViewController {
           meme.timeStamp = Date()
           meme.saveImages(originalImage: originalImage, memedImage: memedImage,
                           memedImageThumbnail: memedImageThumbnail, timeStamp: meme.timeStamp!)
-          moc.perform {
+          moc.performAndWait {
             do {
               try moc.save()
             } catch {
               print (error)
             }
           }
+          DispatchQueue.main.async {
+            UIApplication.shared.endIgnoringInteractionEvents()
+            showActivityIndicatorView(false)
+            self.dismiss(animated: true, completion: nil)
+          }
         }
       }
-      self.dismiss(animated: true, completion: nil)
     }
   }
   
@@ -178,13 +198,21 @@ class MemeEditorViewController: UIViewController {
     bottomTextFieldBottomLayoutConstraint.constant = memeImageView.bounds.size.height - imageRect.origin.y - imageRect.size.height + 4.0
   }
   
+  /*
+    Issue:- We are scaling the image first to reduce the memory usage.
+    If we don't scale the image, then the output memed image size is ~50 MB.
+   */
+  
   func generateMemeImage() -> UIImage? {
-    guard let memeImage = memeImageView.image
-    , let memeImageRect = imageRectOf(memeImageView) else {
+    guard let originalImage = memeImageView.image,
+      let memeImage = UIImage.scalePhoto(image: originalImage, width: memeImageView.frame.size.width),
+      let memeImageRect = imageRectOf(memeImageView) else {
       return nil
     }
-
-    let r = UIGraphicsImageRenderer(size: memeImage.size)
+    
+    let format = UIGraphicsImageRendererFormat.default()
+    format.opaque = true
+    let r = UIGraphicsImageRenderer(size: memeImage.size, format: format)
     let im = r.image { _ in
       let hscale = memeImage.size.height / memeImageRect.size.height
       memeImage.draw(at: CGPoint(x: 0.0, y: 0.0))
@@ -256,7 +284,13 @@ extension MemeEditorViewController: UIImagePickerControllerDelegate, UINavigatio
   }
   
   func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [String : Any]) {
-    memeImageView.image = info[UIImagePickerControllerOriginalImage] as? UIImage
+    if let image = info[UIImagePickerControllerEditedImage] as? UIImage {
+      memeImageView.image = image
+    } else if let image = info[UIImagePickerControllerOriginalImage] as? UIImage {
+      memeImageView.image = image
+    } else {
+      memeImageView.image = nil
+    }
     actionBarButtonItem.isEnabled = true
     adjustTextField()
     picker.dismiss(animated: true, completion:nil)
