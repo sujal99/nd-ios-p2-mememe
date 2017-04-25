@@ -12,8 +12,7 @@ import UIKit
  https://gist.github.com/djbriane/160791
  */
 extension UIImage {
-  class func generatePhotoThumbnail(image: UIImage) -> UIImage? {
-    let width: CGFloat = 80
+  class func scalePhoto(image: UIImage, width: CGFloat) -> UIImage? {
     let height = image.size.height / image.size.width * width
     let size = CGSize(width: width, height: height)
     let hasAlpha = false
